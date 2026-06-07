@@ -49,16 +49,16 @@ router.post("/register", async (req, res) => {
 });
 
 
-// LOGIN
+ // LOGIN
 
 router.post("/login", async (req, res) => {
-
     try {
 
         const { email, password } = req.body;
 
-        const user =
-            await User.findOne({ email });
+        console.log("Login attempt:", email);
+
+        const user = await User.findOne({ email });
 
         if (!user) {
             return res.status(400).json({
@@ -66,17 +66,18 @@ router.post("/login", async (req, res) => {
             });
         }
 
-        const isMatch =
-            await bcrypt.compare(
-                password,
-                user.password
-            );
+        const isMatch = await bcrypt.compare(
+            password,
+            user.password
+        );
 
         if (!isMatch) {
             return res.status(400).json({
                 message: "Invalid Password"
             });
         }
+
+        console.log("JWT_SECRET:", process.env.JWT_SECRET);
 
         const token = jwt.sign(
             {
@@ -99,12 +100,13 @@ router.post("/login", async (req, res) => {
 
     } catch (error) {
 
+        console.error("LOGIN ERROR:", error);
+
         res.status(500).json({
             message: error.message
         });
 
     }
-
 });
 
 module.exports = router;
